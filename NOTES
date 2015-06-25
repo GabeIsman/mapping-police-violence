@@ -1,0 +1,5 @@
+Census provides place-level shapefiles (at pretty low resolution). These could be combined with census place-level race/population statistics to get some very granular data. With this info it would be possible to do likeliehood of getting killed by police by city (if not exactly police district).
+I am not doing this to start out with because of the added complications of downloading and stitching together all of these maps/data
+maps: https://www.census.gov/geo/maps-data/data/cbf/cbf_place.html
+race data: http://census.ire.org/data/bulkdata.html
+
