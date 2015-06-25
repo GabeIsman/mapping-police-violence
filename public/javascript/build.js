@@ -5,7 +5,7 @@ d3 = require('d3');
 var ViolenceMap = require('./views/violencemap');
 var map = new ViolenceMap({
   el: '#map',
-  url: '/data/policeviolencemap.json'
+  url: 'data/policeviolencemap.json'
 });
 
 },{"./views/violencemap":4,"d3":6,"underscore":9}],2:[function(require,module,exports){
