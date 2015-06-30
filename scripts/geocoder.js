@@ -19,7 +19,6 @@ var geocodeString = function(locString, cb) {
         query: locString,
         result: first
       };
-      console.log('finished #', counter);
       counter += 1;
       cb(null, result);
     });
@@ -66,4 +65,7 @@ var geocodeTheCountedData = function(records, cb) {
   });
 };
 
-module.exports = geocodeTheCountedData;
+module.exports = {
+  geocodeString: geocodeString,
+  geocodeLocations: geocodeLocations
+};

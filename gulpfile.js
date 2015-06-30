@@ -25,7 +25,7 @@ var combine = require('./tasks/combine');
 var prefixColumns = require('./tasks/prefixColumns');
 
 var downloadCensusTables = require('./scripts/download-census-tables');
-var geocode = require('./scripts/geocode');
+var processData = require('./scripts/process-mpv-data');
 
 var DEST = 'public/';
 var DATA_DEST = DEST + 'data/';
@@ -52,7 +52,7 @@ gulp.task('violencedata', function() {
         .pipe(rename({basename: 'populations'}))
         .pipe(objectify({indexColumn: 'fips'})),
       gulp.src('srcdata/us.topo.json'),
-      gulp.src('public/data/the-counted.json')
+      gulp.src('public/data/mpv-data-out.json')
         .pipe(rename({basename: 'killings'}))
     )
     .pipe(wrap())
@@ -67,26 +67,67 @@ gulp.task('violencedata', function() {
 });
 
 
-gulp.task('convert-the-counted-to-json', function() {
-  gulp.src('srcdata/the-counted.csv')
+gulp.task('convert-mpv-to-json', function() {
+  gulp.src('srcdata/MPVFullDataset.csv')
     .pipe(parseCsv({ auto_parse: true }))
-    .pipe(rename({ basename: 'the-counted', extname: '.json' }))
+    .pipe(renameColumns({
+      'Victim\'s name': 'name',
+      'Victim\'s age': 'age',
+      'Victim\'s race': 'race',
+      'Victim\'s gender': 'gender',
+      'URL of image of victim': 'image_url',
+      'Date of injury resulting in death (month/day/year)': 'date',
+      'Location of injury (address)': 'address',
+      'Location of death (city)': 'city',
+      'Location of death (state)': 'state',
+      'Location of death (zip code)': 'zip',
+      'Location of death (county)': 'county',
+      'Agency responsible for death': 'agency_responsible',
+      'Cause of death': 'cod',
+      'A brief description of the circumstances surrounding the death': 'description',
+      'Official disposition of death (justified or other)': 'disposition',
+      'Criminal Charges?': 'charges',
+      'Link to news article or photo of official document': 'source',
+      'Symptoms of mental illness?': 'mental_illness',
+      'Unarmed': 'armed',
+      'Not line of duty/Accidental?': 'line_of_duty',
+      'In-Custody/Inmate': 'in_custody',
+      'Arrest-Related Death': 'arrest_related',
+      'sort order': 'sort_order',
+      'Unique identifier': 'identifier',
+      'Alleged Crime Committed': 'alleged_crime',
+      'age group': 'age_group'
+    }))
+    .pipe(rename({ basename: 'mpv-data', extname: '.json' }))
     .pipe(objectify())
     .pipe(gulp.dest('public/data/'));
 });
 
 
-gulp.task('geocode', function() {
-  var file = 'public/data/the-counted.json';
+gulp.task('process-data', function() {
+  var file = 'public/data/mpv-data-out.json';
   var data = JSON.parse(fs.readFileSync(file));
-  geocode(data, function(data) {
-    fs.writeFileSync(file, JSON.stringify(data));
-  });
+  processData(data, 'public/data/mpv-data-out.json');
+});
+
+
+gulp.task('retry-failed-processing', function() {
+  var file = 'public/data/mpv-data-out.json';
+  var data = JSON.parse(fs.readFileSync(file));
+  processData(data, 'public/data/mpv-data-out.json', { retryFailed: true });
+});
+
+
+// Noticed that a bunch of the zips were only 4 digits long, so doing a run without them
+gulp.task('retry-failed-processing-without-zip', function() {
+  var file = 'public/data/mpv-data-out.json';
+  var data = JSON.parse(fs.readFileSync(file));
+  processData(data, 'public/data/mpv-data-out.json', { retryFailed: true, excludeZip: true });
 });
 
 
 gulp.task('lint', function() {
-  gulp.src(['./app/**/*.js', './tasks/**/*.js', 'gulpfile.js'])
+  gulp.src(['./app/**/*.js', './tasks/**/*.js', './scripts/**/*.js', 'gulpfile.js'])
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
