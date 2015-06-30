@@ -145,12 +145,13 @@ ViolenceMap.prototype.renderData = function() {
   this.group.selectAll(".killing")
     .data(this.data.killings)
     .enter().append("circle")
+    .classed("killing", true)
     .attr("cx", function(d) { return self.projection([d.lng, d.lat])[0]; })
     .attr("cy", function(d) { return self.projection([d.lng, d.lat])[1]; })
-    .attr("r", "3px")
+    .attr("r", "1px")
     .attr("fill", function(d) { return '#F33'; })
     .attr("stroke", function(d) { return '#F33'; })
-    .attr("opacity", 0.7)
+    .attr("opacity", 0.5)
     // .attr("class", function(d) { return slugify(self.getPrisonType(d.type)); })
     .on("hover", function(d) {
 
@@ -181,7 +182,13 @@ ViolenceMap.prototype.handleStateClicked = function(target, d) {
   this.group.transition()
     .duration(750)
     // Scale stuff here
+    .style("stroke-width", 1.5 / scale + "px")
     .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+
+  this.group.selectAll(".killing")
+    .transition()
+    .duration(750)
+    .attr("r", "0.3px");
 };
 
 
@@ -190,7 +197,13 @@ ViolenceMap.prototype.resetZoom = function() {
   this.active = d3.select(null);
   this.group.transition()
     .duration(750)
+    .style("stroke-width", "1px")
     .attr('transform', '');
+
+  this.group.selectAll(".killing")
+    .transition()
+    .duration(750)
+    .attr("r", "1px");
 };
 
 
