@@ -35,19 +35,11 @@ var ViolenceMap = function(options) {
 
   d3.json(options.url, _.bind(this.handleFetch, this));
 
-  this.colorScale = d3.scale.quantile()
-    .domain(THRESHOLDS)
-    .range(d3.range(COLORSCHEME.length).map(_.bind(function(i) {
-      return COLORSCHEME[i];
-    }, this)));
-
-  this.prisonColorScale = d3.scale.ordinal()
-    .domain(PRISON_TYPES)
-    .range(PRISON_COLORSCHEME);
-
-  this.prisonScale = d3.scale.linear()
-    .domain([0, 10000])
-    .range([0.5, 15]);
+  this.zoom = d3.behavior.zoom()
+    .translate([0, 0])
+    .scale(1)
+    .scaleExtent([1, 12])
+    .on("zoom", getHandler(this.handleZoom, this));
 
   this.active = d3.select(null);
 };
@@ -126,6 +118,11 @@ ViolenceMap.prototype.renderMap = function() {
 
   this.group = this.svg.append("g");
 
+  this.svg
+    .call(this.zoom)
+    .call(this.zoom.event)
+    .on("click", stopped, true);
+
   // Draw the outlines of all the states, fill them according to the
   // colorScale.
   this.group.selectAll("path")
@@ -181,14 +178,12 @@ ViolenceMap.prototype.handleStateClicked = function(target, d) {
 
   this.group.transition()
     .duration(750)
-    // Scale stuff here
-    .style("stroke-width", 1.5 / scale + "px")
-    .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+    .call(this.zoom.translate(translate).scale(scale).event);
 
-  this.group.selectAll(".killing")
-    .transition()
-    .duration(750)
-    .attr("r", "0.3px");
+  // this.group.selectAll(".killing")
+  //   .transition()
+  //   .duration(750)
+  //   .attr("r", "0.3px");
 };
 
 
@@ -197,14 +192,21 @@ ViolenceMap.prototype.resetZoom = function() {
   this.active = d3.select(null);
   this.group.transition()
     .duration(750)
-    .style("stroke-width", "1px")
-    .attr('transform', '');
+    .call(zoom.translate([0, 0]).scale(1).event);
 
-  this.group.selectAll(".killing")
-    .transition()
-    .duration(750)
-    .attr("r", "1px");
+
+  // this.group.selectAll(".killing")
+  //   .transition()
+  //   .duration(750)
+  //   .attr("r", "1px");
 };
+
+
+ViolenceMap.prototype.handleZoom = function() {
+  this.group
+    .style("stroke-width", 1.5 / d3.event.scale + "px")
+    .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
 
 
 /**
@@ -241,6 +243,11 @@ ViolenceMap.prototype.filterData = function() {
     return !!result;
   }, this);
 };
+
+
+function stopped() {
+  if (d3.event.defaultPrevented) d3.event.stopPropagation();
+}
 
 
 /**
