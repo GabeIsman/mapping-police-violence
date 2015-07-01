@@ -67,13 +67,37 @@ ViolenceTileMap.prototype.renderMap = function() {
 };
 
 ViolenceTileMap.prototype.renderData = function() {
-  _.each(this.data.killings, function(d) {
-    L.circle([d.lat, d.lng], 300, {
+  this.points = _.map(this.data.killings, function(d) {
+    var point = L.circle([d.lat, d.lng], 500, {
       color: '#F33',
       fillColor: '#F33',
       fillOpacity: 0.5,
+      className: 'killing'
     }).addTo(this.map);
+    point.on({
+      mouseover: _.bind(this.handlePointMouseOver, this, d),
+      mouseout: _.bind(this.handlePointMouseOut, this, d),
+      // click: _.bind(this.handlePointClick, this, d),
+    });
+    point.bindPopup(d.name);
   }, this);
+};
+
+
+ViolenceTileMap.prototype.handlePointMouseOver = function(data, e) {
+  // if (!data.hoverPop) {
+  //   data.hoverPop = L.popup({
+  //     closeButton: false,
+  //     className: 'hover-pop'
+  //   }).setContent(data.name)
+  //   .setLatLng(e.target.getLatLng())
+  //   .openOn(this.map);  
+  // }
+};
+
+
+ViolenceTileMap.prototype.handlePointMouseOut = function(data, e) {
+  
 };
 
 

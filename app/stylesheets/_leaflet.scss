@@ -1,0 +1,12 @@
+.killing {
+  @include transition(all .3s linear);
+  transform: scale(1);
+  transform-origin: 50% 50%;
+}
+
+.killing:hover {
+  transform: scale(4);
+  transform-origin: 50% 50%;
+  opacity: 1;
+  color: #933;
+}

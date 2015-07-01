@@ -5,6 +5,22 @@
   font-weight: normal;
   font-style: normal;
 }
+.killing {
+  -moz-transition: all 0.3s linear;
+  -o-transition: all 0.3s linear;
+  -webkit-transition: all 0.3s linear;
+  transition: all 0.3s linear;
+  transform: scale(1);
+  transform-origin: 50% 50%;
+}
+
+.killing:hover {
+  transform: scale(4);
+  transform-origin: 50% 50%;
+  opacity: 1;
+  color: #933;
+}
+
 * {
   padding: 0;
   margin: 0;
