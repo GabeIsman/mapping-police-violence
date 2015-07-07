@@ -1,0 +1,58 @@
+.show-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border-bottom: 1px solid $red;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 2.1rem;
+  cursor: pointer;
+}
+
+.active-filter-indicator {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  color: #fff;
+  .remove {
+    padding: 5px;
+    color: $red;
+  }
+}
+
+.active-filter {
+  cursor: pointer;
+}
+
+.control-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  padding: 20px;
+  padding-top: 40px;
+  overflow-y: scroll;
+  background-color: $darkGrey;
+  box-shadow: $box-shadow;
+  color: $lightGrey;
+  @include transition(all 0.18s ease);
+}
+
+.control-title {
+  color: #fff;
+}
+
+.control-panel.docked {
+  @include transform(translate(300px, 0));
+}
+
+.control-panel .btn-default {
+  background: transparent;
+  color: lighten($lightGrey, 40%);
+  &.active,
+  &:active {
+    background: transparent;
+    color: $red;
+  }
+}

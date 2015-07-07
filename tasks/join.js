@@ -85,6 +85,7 @@ Join.prototype._transform = function(file, encoding, done) {
       if (valuesToJoin) {
         return row.concat(valuesToJoin);
       } else {
+        console.log(row);
         console.log("Warning: No join data available for ", row[joinIndexPosition]);
       }
       return row;

@@ -1,0 +1,17 @@
+.ib {
+  display: inline-block;
+}
+
+.red {
+  color: $red;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+}

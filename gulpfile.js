@@ -179,3 +179,7 @@ gulp.task('styles', function() {
     .on("error", notify.onError("Styles error: <%= error.message %>"));
 });
 
+gulp.task('serve', function() {
+
+});
+

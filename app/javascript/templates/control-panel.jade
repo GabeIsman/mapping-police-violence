@@ -1,23 +1,50 @@
-.control-panel
+span.show-controls Show map filters
+.filter-indicator
+.control-panel.docked
+  span.show-controls Hide map filters
   .control-section
-    h6 Type of Statistic
-    ul.controls
-      li.control(data-option="rate") Rate of Police Killings by Population
-      li.control(data-option="disparity") Racial Disparity
-      li.control(data-option="count") Total 
+    h4.control-title View
+    .btn-group(data-toggle='buttons')
+      label.btn.btn-default.active Total
+        input(type='radio', name='view', value='', autocomplete='off', checked=true) 
+      label.btn.btn-default Rate
+        input(type='radio', name='view', value='rate', autocomplete='off')
+      label.btn.btn-default  Disparity
+        input(type='radio', name='view', value='disparity', autocomplete='off')
   .control-section
-    h6 Filters
-    ul.controls
-      li.control(data-option="race") Race
-      li.control(data-option="unarmed") Unarmed
-      li.control(data-option="gender") Gender
+    h4.control-title Gender
+    .btn-group(data-toggle='buttons')
+      label.btn.btn-default.active All
+        input(type='radio', name='gender', value='', autocomplete='off', checked=true) 
+      label.btn.btn-default Female
+        input(type='radio', name='gender', value='female', autocomplete='off')
+      label.btn.btn-default  Male
+        input(type='radio', name='gender', value='male', autocomplete='off')
   .control-section
-    h6 Level of Analysis
-    ul.controls
-      li.control(data-option="city") City
-      li.control(data-option="state") State
-      li.control(data-option="national") National
+    h4.control-title Race
+    .btn-group(data-toggle='buttons')
+      label.btn.btn-default.active All
+        input(type='radio', name='race', value='', autocomplete='off', checked=true) 
+      label.btn.btn-default Black
+        input(type='radio', name='race', value='black', autocomplete='off')
+      label.btn.btn-default  White
+        input(type='radio', name='race', value='white', autocomplete='off')
+      label.btn.btn-default  Hispanic
+        input(type='radio', name='race', value='hispanic', autocomplete='off')
+      label.btn.btn-default  Asian
+        input(type='radio', name='race', value='asian', autocomplete='off')
   .control-section
-    h6 Search
-    input.search(type="text" name="search")
+    h4.control-title Armed?
+    .btn-group(data-toggle='buttons')
+      label.btn.btn-default.active All
+        input(type='radio', name='armed', value='', autocomplete='off', checked=true) 
+      label.btn.btn-default Armed
+        input(type='radio', name='armed', value='allegedly armed', autocomplete='off')
+      label.btn.btn-default Vehicle
+        input(type='radio', name='armed', value='vehicle', autocomplete='off')
+      label.btn.btn-default  Unarmed
+        input(type='radio', name='armed', value='unarmed', autocomplete='off')
+          
+  
+    
 

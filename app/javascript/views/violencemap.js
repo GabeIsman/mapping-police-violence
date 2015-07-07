@@ -1,19 +1,7 @@
 var topojson = require('topojson');
 var colorbrewer = require('../lib/colors/colorbrewer');
-var controlPanelTemplate = require('../templates/control-panel.jade');
-
-
-// The thresholds that define the segments to break colors on.
-var THRESHOLDS = [0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009];
-// This colorscheme is just an array of colors. Can be substituted for any
-// similar array (there are many options in the colorbrewer file, an open
-// source set of colorschemes). The cardinality of the colorscheme should one
-// less than that of the thresholds.
-var COLORSCHEME = colorbrewer.Greys[THRESHOLDS.length - 1];
-
-
-var PRISON_TYPES = ['Federal', 'State', 'Local', 'Halfway House', 'Military', 'Private', 'Other'];
-var PRISON_COLORSCHEME = colorbrewer.Set2[PRISON_TYPES.length];
+// This isn't working
+var filters = require('../templates/filters.jade');
 
 
 /**
@@ -30,8 +18,15 @@ var ViolenceMap = function(options) {
     throw new Error('Must pass a url when initializing an ViolenceMap');
   }
 
-  d3.select(window).on('resize', _.bind(this.handleResize, this));
+  this.bindEvents();
   this.handleResize();
+
+  this.controlState = {
+    race: '',
+    gender: '',
+    state: '',
+    armed: ''
+  };
 
   d3.json(options.url, _.bind(this.handleFetch, this));
 
@@ -42,6 +37,21 @@ var ViolenceMap = function(options) {
     .on("zoom", getHandler(this.handleZoom, this));
 
   this.active = d3.select(null);
+};
+
+
+ViolenceMap.prototype.bindEvents = function() {
+  d3.select(window).on('resize', _.debounce(_.bind(this.handleResize, this), 100));
+  Backbone.on('controls:update', _.bind(this.handleUpdate, this));
+};
+
+
+ViolenceMap.prototype.handleUpdate = function(e) {
+  if (e) {
+    this.controlState = e;
+  }
+  this.filterData();
+  this.renderData();
 };
 
 
@@ -67,6 +77,7 @@ ViolenceMap.prototype.handleResize = function() {
   // If we've loaded the data, then re-render the map.
   if (this.data) {
     this.renderMap();
+    this.renderData();
   }
 };
 
@@ -86,8 +97,8 @@ ViolenceMap.prototype.handleFetch = function(err, data) {
   }
 
   this.data = data;
-  this.filterData();
   this.renderMap();
+  this.handleUpdate();
 };
 
 
@@ -100,9 +111,6 @@ ViolenceMap.prototype.renderMap = function() {
   // Kill the loading text, or whatever was previously in the element we were
   // passed.
   this.el.html("");
-
-  // Render the control panel first.
-  this.renderControlPanel();
 
   var geodata = this.data['us.topo'];
 
@@ -130,29 +138,30 @@ ViolenceMap.prototype.renderMap = function() {
     .enter().append("path")
       .attr("class", "violencemap-state")
       .attr("d", this.path)
-      // .attr("fill", function(d) { return self.colorScale(self.getImprisonmentRate(d.id)); })
+      .attr("fill", '#4a4c4c')
       .on("click", getHandler(this.handleStateClicked, this));
 
-  this.renderData();
+  // $('.violencemap-us').append(filters());
 };
 
 ViolenceMap.prototype.renderData = function() {
   var self = this;
 
-  this.group.selectAll(".killing")
-    .data(this.data.killings)
-    .enter().append("circle")
+  var killings = this.group.selectAll(".killing")
+    .data(this.filteredKillings, function(d) { return d.name; });
+  
+  killings.enter()
+    .append("circle")
     .classed("killing", true)
     .attr("cx", function(d) { return self.projection([d.lng, d.lat])[0]; })
     .attr("cy", function(d) { return self.projection([d.lng, d.lat])[1]; })
-    .attr("r", "1px")
     .attr("fill", function(d) { return '#F33'; })
     .attr("stroke", function(d) { return '#F33'; })
-    .attr("opacity", 0.5)
-    // .attr("class", function(d) { return slugify(self.getPrisonType(d.type)); })
-    .on("hover", function(d) {
-
-    });
+    .attr("r", "2px")
+    .attr("opacity", 0.5);
+  
+  killings.exit()
+    .remove();
 };
 
 ViolenceMap.prototype.handleStateClicked = function(target, d) {
@@ -192,7 +201,7 @@ ViolenceMap.prototype.resetZoom = function() {
   this.active = d3.select(null);
   this.group.transition()
     .duration(750)
-    .call(zoom.translate([0, 0]).scale(1).event);
+    .call(this.zoom.translate([0, 0]).scale(1).event);
 
 
   // this.group.selectAll(".killing")
@@ -209,58 +218,33 @@ ViolenceMap.prototype.handleZoom = function() {
 }
 
 
-/**
- * Constructs the legend and appends it to the map.
- */
-ViolenceMap.prototype.renderControlPanel = function() {
-  this.el.html(controlPanelTemplate());
-
-  this.el.selectAll('.legend-control')
-    .on('click', getHandler(this.handleLegendClick, this));
-};
-
-
-ViolenceMap.prototype.handleLegendClick = function(target, d) {
-  var target = d3.select(target);
-  var type = slugify(target.attr('type'));
-  var prisons = d3.selectAll('.' + type);
-  if (target.classed('active')) {
-    target.classed('active', false);
-    prisons.style('visibility', 'hidden');
-  } else {
-    target.classed('active', true);
-    prisons.style('visibility', 'visible');
-  }
-};
-
-
 ViolenceMap.prototype.filterData = function() {
-  this.data.killings = _.filter(this.data.killings, function(d) {
+  this.filteredKillings = _.filter(this.data.killings, function(d) {
+    if (this.controlState.race && this.controlState.race != d.race.toLowerCase()) {
+      return false;
+    }
+    if (this.controlState.state && this.controlState.state != d.state) {
+      return false;
+    }
+    if (this.controlState.gender && this.controlState.gender != d.gender.toLowerCase()) {
+      return false;
+    }
+    if (this.controlState.armed && this.controlState.armed != d.armed.toLowerCase()) {
+      return false;
+    }
     var result = this.projection([d.lng, d.lat]);
     if (!result) {
-      console.log('Warning filtering', d);
+      // console.log('Warning filtering for lack of geocode', d);
     }
     return !!result;
   }, this);
+
+  console.log('filtered list contains ', this.filteredKillings.length);
 };
 
 
 function stopped() {
   if (d3.event.defaultPrevented) d3.event.stopPropagation();
-}
-
-
-/**
- * Converts a color into the range of numbers that it represents.
- *
- * @param  {Object} scale The D3 scale on which to convert
- * @param  {Object} value An object in the range of the scale
- * @return {String}
- */
-function getLabel(scale, value) {
-  debugger
-  var domain = scale.invertExtent(value);
-  return Math.ceil(domain[0] + 1) + " - " + Math.floor(domain[1]);
 }
 
 

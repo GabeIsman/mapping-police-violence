@@ -1,0 +1,10 @@
+filter#dropshadow(height='130%')
+  fegaussianblur(in='SourceAlpha', stddeviation='3')
+  // stdDeviation is how much to blur
+  feoffset(dx='2', dy='2', result='offsetblur')
+  // how much to offset
+  femerge
+    femergenode
+    // this contains the offset blurred image
+    femergenode(in='SourceGraphic')
+    // this contains the element that the filter is applied to
