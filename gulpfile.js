@@ -41,16 +41,14 @@ gulp.task('violencedata', function() {
             .pipe(parseCsv({auto_parse: true}))
             .pipe(filterColumns(['NAME', 'FIPS']))
             .pipe(renameColumns()),
-          gulp.src('srcdata/kaiser-foundation-pop-estimates.csv') // This needs to be replaced with something more reliable.
+          gulp.src('srcdata/state-populations.csv') // This needs to be replaced with something more reliable.
             .pipe(parseCsv({auto_parse: true}))
-            .pipe(filterColumns(['Location', 'Total']))
             .pipe(renameColumns({
-              Location: 'name',
-              Total: 'pop'
+              State: 'name'
             })))
         .pipe(join({joinColumn: 'name'}))
         .pipe(rename({basename: 'populations'}))
-        .pipe(objectify({indexColumn: 'fips'})),
+        .pipe(objectify({indexColumn: 'fips', unwrap: true})),
       gulp.src('srcdata/us.topo.json'),
       gulp.src('public/data/mpv-data-out.json')
         .pipe(rename({basename: 'killings'}))

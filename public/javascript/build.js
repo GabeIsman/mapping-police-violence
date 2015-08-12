@@ -583,6 +583,7 @@ ViolenceMap.prototype.handleFetch = function(err, data) {
   }
 
   this.data = data;
+  debugger
   this.renderMap();
   this.handleUpdate();
 };
@@ -635,7 +636,7 @@ ViolenceMap.prototype.renderData = function() {
 
   var killings = this.group.selectAll(".killing")
     .data(this.filteredKillings, function(d) { return d.name; });
-  
+
   killings.enter()
     .append("circle")
     .classed("killing", true)
@@ -645,7 +646,7 @@ ViolenceMap.prototype.renderData = function() {
     .attr("stroke", function(d) { return '#F33'; })
     .attr("r", "2px")
     .attr("opacity", 0.5);
-  
+
   killings.exit()
     .remove();
 };
